@@ -30,7 +30,7 @@ Alternative usage:
 
 """
 
-from six import StringIO
+from six import BytesIO
 from collections import defaultdict
 import getpass
 import signal
@@ -154,12 +154,12 @@ class LocalRemoteProcess(object):
         self.args = args
         self.subproc = subproc
         if stdout is None:
-            self.stdout = StringIO()
+            self.stdout = BytesIO()
         else:
             self.stdout = stdout
 
         if stderr is None:
-            self.stderr = StringIO()
+            self.stderr = BytesIO()
         else:
             self.stderr = stderr
 
@@ -931,7 +931,7 @@ class LocalCephManager(CephManager):
         if watch_channel is not None:
             args.append("--watch-channel")
             args.append(watch_channel)
-        proc = self.controller.run(args, wait=False, stdout=StringIO())
+        proc = self.controller.run(args, wait=False, stdout=BytesIO())
         return proc
 
     def raw_cluster_cmd(self, *args, **kwargs):
