@@ -1,6 +1,7 @@
 """
 ceph_objectstore_tool - Simple test of ceph-objectstore-tool utility
 """
+from io import BytesIO
 import contextlib
 import logging
 import ceph_manager
