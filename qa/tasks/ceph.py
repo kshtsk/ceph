@@ -981,6 +981,7 @@ def cluster(ctx, config):
                     ),
                     sudo=True,
                 )
+                log.debug("Read data: %s" % data)
                 keys.append((type_, id_, data))
                 keys_fp.write(data)
     for remote, roles_for_host in ctx.cluster.remotes.items():
@@ -989,6 +990,7 @@ def cluster(ctx, config):
             data = remote.read_file(
                 '/etc/ceph/{cluster}.client.{id}.keyring'.format(id=id_, cluster=cluster_name)
             )
+            log.debug("Read data: %s" % data)
             keys.append(('client', id_, data))
             keys_fp.write(data)
 
