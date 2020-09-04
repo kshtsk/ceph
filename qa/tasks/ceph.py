@@ -983,6 +983,7 @@ def cluster(ctx, config):
                 remote.sh('ls -la %s' % path)
                 log.debug(remote.sh('cat %s' % path))
                 log.debug("Read data: %s" % data)
+                log.debug("%s" % remote.run)
                 keys.append((type_, id_, data))
                 keys_fp.write(data)
     for remote, roles_for_host in ctx.cluster.remotes.items():
