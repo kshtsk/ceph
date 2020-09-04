@@ -746,6 +746,7 @@ def cluster(ctx, config):
 
     log.info('Copying monmap to all nodes...')
     keyring = mon0_remote.read_file(keyring_path)
+    log.debug('read keyring file from %s at mon0: %s', keyring_path, keyring)
     monmap = mon0_remote.read_file(monmap_path)
 
     for rem in ctx.cluster.remotes.keys():
@@ -980,7 +981,7 @@ def cluster(ctx, config):
                     )
                 data = remote.read_file(path, sudo=True)
                 remote.sh('ls -la %s' % path)
-                log.debug(remote.sh('cat %s' % path)
+                log.debug(remote.sh('cat %s' % path))
                 log.debug("Read data: %s" % data)
                 keys.append((type_, id_, data))
                 keys_fp.write(data)
