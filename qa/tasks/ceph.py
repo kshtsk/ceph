@@ -980,8 +980,8 @@ def cluster(ctx, config):
                         'keyring',
                     )
                 data = remote.read_file(path, sudo=True)
-                remote.sh('ls -la %s' % path)
-                log.debug(remote.sh('cat %s' % path))
+                remote.sh('sudo ls -la %s' % path)
+                log.debug(remote.sh('sudo cat %s' % path))
                 log.debug("Read data: %s" % data)
                 log.debug("%s" % remote.run)
                 keys.append((type_, id_, data))
