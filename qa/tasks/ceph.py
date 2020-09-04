@@ -973,14 +973,14 @@ def cluster(ctx, config):
                 continue
             for role in teuthology.cluster_roles_of_type(roles_for_host, type_, cluster_name):
                 _, _, id_ = teuthology.split_role(role)
-                data = remote.read_file(
-                    os.path.join(
+                path = os.path.join(
                         DATA_PATH.format(
                             type_=type_, id_=id_, cluster=cluster_name),
                         'keyring',
-                    ),
-                    sudo=True,
-                )
+                    )
+                data = remote.read_file(path, sudo=True)
+                remote.sh('ls -la %s' % path)
+                log.debug(remote.sh('cat %s' % path)
                 log.debug("Read data: %s" % data)
                 keys.append((type_, id_, data))
                 keys_fp.write(data)
