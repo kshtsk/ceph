@@ -131,7 +131,7 @@ bool Elector::ever_participated() const
   return mon->has_ever_joined;
 }
 
-int Elector::paxos_size() const
+unsigned Elector::paxos_size() const
 {
   return mon->monmap->size();
 }
@@ -739,7 +739,7 @@ void Elector::notify_rank_changed(int new_rank)
   dead_pinging.erase(new_rank);
 }
 
-void Elector::notify_rank_removed(int rank_removed, int new_rank)
+void Elector::notify_rank_removed(unsigned rank_removed, unsigned new_rank)
 {
   dout(10) << __func__ << ": " << rank_removed << dendl; 
   peer_tracker.notify_rank_removed(rank_removed, new_rank);
