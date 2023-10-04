@@ -139,7 +139,7 @@ options:
   type: size
   level: advanced
   desc: threshold for number of dentries that can be trimmed
-  default: 256_K
+  default: 512_K
   services:
   - mds
   flags:
