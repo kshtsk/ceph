@@ -28,7 +28,7 @@ class Features(Enum):
     DASHBOARD = 'dashboard'
 
 
-PREDISABLED_FEATURES = set()  # type: Set[str]
+PREDISABLED_FEATURES = set(Features.DASHBOARD.value)  # type: Set[str]
 
 Feature2Controller = {
     Features.RBD: [Rbd, RbdSnapshot, RbdTrash],
