@@ -418,8 +418,6 @@ class FuseMountBase(CephFSMountBase):
         """
         super(FuseMountBase, self).teardown()
 
-        self.umount()
-
         if self.fuse_daemon and not self.fuse_daemon.finished:
             self.fuse_daemon.stdin.close()
             try:
