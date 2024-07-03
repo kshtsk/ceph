@@ -3,7 +3,7 @@
 SCRIPTNAME="$(basename "${0}")"
 BASEDIR="$(readlink -f "$(dirname "${0}")")"
 
-if [ ! -d .git ]; then
+if [ ! -e .git ]; then
     echo "$SCRIPTNAME: Full path to the script: $BASEDIR/$SCRIPTNAME"
     echo "$SCRIPTNAME: No .git present. Run this from the base dir of the git checkout."
     exit 1
@@ -20,7 +20,7 @@ if [[ "$BASEDIR" == *:* ]] ; then
 fi
 
 version=$1
-[ -z "$version" ] && version=$(git describe --long --match 'v*' | sed 's/^v//')
+[ -z "$version" ] && version=$(git describe --tags --match 'ces-v*' | sed 's/^ces-v//')
 if expr index $version '-' > /dev/null; then
     rpm_version=$(echo $version | cut -d - -f 1-1)
     rpm_release=$(echo $version | cut -d - -f 2- | sed 's/-/./g')
