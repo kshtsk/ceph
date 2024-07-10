@@ -407,6 +407,10 @@ else
         builddepcmd="dnf -y builddep --allowerasing"
         echo "Using dnf to install dependencies"
         case "$ID" in
+            rocky)
+                $SUDO dnf install -y epel-release
+                $SUDO dnf config-manager --enable crb
+                ;;
             fedora)
                 $SUDO dnf install -y dnf-utils
                 ;;
