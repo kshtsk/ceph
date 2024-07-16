@@ -1,0 +1,34 @@
+---
+name: "Ceph Build RPM"
+on:
+  pull_request:
+    branches:
+      - 'ces-*'
+jobs:
+  ces-rpmbuild:
+    runs-on: rpmbuild
+    strategy:
+      # we don't want to continue running this job if other failed or canceled
+      fail-fast: true
+    steps:
+      - run: cat /etc/os-release
+      - uses: actions/checkout@v4
+      - run: bash -x install-deps.sh
+      - run: bash -x do_cmake.sh
+      - run: |
+          version=$(git describe --tags --match 'ces-v*' | sed 's/^ces-v//')
+          sha=${{ github.sha }}
+          bash -x make-srpm.sh ${sha:0:7}
+      - name: Run rpmbuild for Ceph
+        run: |
+          rpmbuild --rebuild "$(ls ceph*.rpm)" 2>&1 | tee /tmp/rpm-pipeline.log
+
+  run-make-check:
+    runs-on: mkck
+    strategy:
+      # we don't want to continue running this job if other failed or canceled
+      fail-fast: true
+    steps:
+      - run: cat /etc/os-release
+      - uses: actions/checkout@v4
+      - run: bash -x run-make-check.sh
