@@ -334,10 +334,12 @@ class TestMonitoring:
 
     @patch("cephadm.serve.CephadmServe._run_cephadm")
     @patch("mgr_module.MgrModule.get")
-    def test_alertmanager_config(self, mock_get, _run_cephadm,
+    @patch("socket.getfqdn")
+    def test_alertmanager_config(self, mock_getfqdn, mock_get, _run_cephadm,
                                  cephadm_module: CephadmOrchestrator):
         _run_cephadm.side_effect = async_side_effect(('{}', '', 0))
         mock_get.return_value = {"services": {"dashboard": "http://[::1]:8080"}}
+        mock_getfqdn.return_value = "localhost"
 
         with with_host(cephadm_module, 'test'):
             with with_service(cephadm_module, AlertManagerSpec()):
