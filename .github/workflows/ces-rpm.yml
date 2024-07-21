@@ -10,6 +10,7 @@ jobs:
     strategy:
       # we don't want to continue running this job if other failed or canceled
       fail-fast: true
+    needs: [run-make-check]
     steps:
       - run: cat /etc/os-release
       - uses: actions/checkout@v4
