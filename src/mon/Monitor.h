@@ -115,7 +115,7 @@ public:
 
   // me
   std::string name;
-  int rank;
+  unsigned rank;
   Messenger *messenger;
   ConnectionRef con_self;
   ceph::mutex lock = ceph::make_mutex("Monitor::lock");

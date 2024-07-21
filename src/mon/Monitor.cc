@@ -6605,7 +6605,7 @@ void Monitor::notify_new_monmap(bool can_change_external_state, bool remove_rank
     dout(10) << __func__ << " we have " << monmap->removed_ranks.size() << " removed ranks" << dendl;
     for (auto i = monmap->removed_ranks.rbegin();
         i != monmap->removed_ranks.rend(); ++i) {
-      int remove_rank = *i;
+      unsigned remove_rank = *i;
       dout(10) << __func__ << " removing rank " << remove_rank << dendl;
       if (rank == remove_rank) {
         dout(5) << "We are removing our own rank, probably we"
