@@ -131,9 +131,9 @@ bool Elector::ever_participated() const
   return mon->has_ever_joined;
 }
 
-unsigned Elector::paxos_size() const
+int Elector::paxos_size() const
 {
-  return (unsigned)mon->monmap->size();
+  return mon->monmap->size();
 }
 
 void Elector::shutdown()
@@ -478,7 +478,7 @@ void Elector::begin_peer_ping(int peer)
 bool Elector::send_peer_ping(int peer, const utime_t *n)
 {
   dout(10) << __func__ << " to peer " << peer << dendl;
-  if (peer >= mon->monmap->ranks.size()) {
+  if (static_cast<unsigned>(peer) >= mon->monmap->ranks.size()) {
     // Monitor no longer exists in the monmap,
     // therefore, we shouldn't ping this monitor
     // since we cannot lookup the address!
@@ -763,7 +763,7 @@ void Elector::notify_rank_removed(int rank_removed, int new_rank)
      we erase the removed rank from all sets.
    */
   if (rank_removed < paxos_size()) {
-    for (unsigned i = rank_removed + 1; i <= paxos_size() ; ++i) {
+    for (int i = rank_removed + 1; i <= paxos_size() ; ++i) {
       if (live_pinging.count(i)) {
         dead_pinging.erase(i-1);
         if (!live_pinging.count(i-1)) {
@@ -783,7 +783,7 @@ void Elector::notify_rank_removed(int rank_removed, int new_rank)
         }
       } else {
         // we aren't pinging rank i at all
-        if (i-1 == (unsigned)rank_removed) {
+        if (i-1 == rank_removed) {
 	  // so we special case to make sure we
 	  // actually nuke the removed rank
 	  dead_pinging.erase(rank_removed);
