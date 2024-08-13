@@ -1,0 +1,17 @@
+---
+name: "clyso"
+on:
+  pull_request:
+    branches:
+      # - test-quincy
+      # - test-reef
+      # - test-squid
+      # - test-main
+      - 'ces-*'
+      - 'test-*'
+  workflow_dispatch:
+jobs:
+  ceph:
+    uses: clyso/ceph-workflows/.github/workflows/make-check.yml@main
+    secrets: inherit
+
