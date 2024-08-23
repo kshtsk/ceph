@@ -1,0 +1,8 @@
+---
+name: "make rpms"
+on: workflow_dispatch
+jobs:
+  ceph:
+    uses: clyso/ceph-workflows/.github/workflows/rpms-build.yml@main
+    secrets: inherit
+
