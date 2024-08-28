@@ -75,7 +75,8 @@
 	url = https://github.com/intel/qatlib.git
 [submodule "src/qatzip"]
 	path = src/qatzip
-	url = https://github.com/intel/qatzip.git
+	url = https://github.com/kshtsk/QATzip
+	branch = wip-v1.1.2-ceph-squid-rockylinux
 [submodule "src/BLAKE3"]
 	path = src/BLAKE3
 	url = https://github.com/BLAKE3-team/BLAKE3.git
