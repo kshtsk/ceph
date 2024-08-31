@@ -22,7 +22,8 @@
 	branch = ceph-release-1.7.x
 [submodule "src/spdk"]
 	path = src/spdk
-	url = https://github.com/ceph/spdk.git
+	url = https://github.com/kshtsk/spdk.git
+	branch = wip-v20.07x-arc4random
 [submodule "src/xxHash"]
 	path = src/xxHash
 	url = https://github.com/ceph/xxHash.git
