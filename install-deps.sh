@@ -271,8 +271,9 @@ function activate_virtualenv() {
     local top_srcdir=$1
     local env_dir=$top_srcdir/install-deps-python3
 
+    local python3=python${WITH_PYTHON3:-3}
     if ! test -d $env_dir ; then
-        python3 -m venv ${env_dir}
+        $python3 -m venv ${env_dir}
         . $env_dir/bin/activate
         if ! populate_wheelhouse install ; then
             rm -rf $env_dir
@@ -298,10 +299,11 @@ function preload_wheels_for_tox() {
             rm -rf wheelhouse
         fi
     fi
+    local python3=python${WITH_PYTHON3:-3}
     if test "$require" && ! test -d wheelhouse ; then
-        type python3 > /dev/null 2>&1 || continue
+        type $python3 > /dev/null 2>&1 || continue
         activate_virtualenv $top_srcdir || exit 1
-        python3 -m pip install --upgrade pip
+        $python3 -m pip install --upgrade pip
         populate_wheelhouse "wheel -w $wip_wheelhouse" $require $constraint || exit 1
         mv $wip_wheelhouse wheelhouse
         md5sum $require_files $constraint_files > $md5
