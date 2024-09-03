@@ -529,7 +529,12 @@ else
             $SUDO $zypp_install $INSTALL_EXTRA_PACKAGES
         fi
         munge_ceph_spec_in $with_seastar $for_make_check $DIR/ceph.spec
-        $SUDO $zypp_install $(rpmspec -q --buildrequires $DIR/ceph.spec) || exit 1
+        ver=${WITH_PYTHON3:-"3.10"}
+        opt=("-D 'python3_version ${ver}'"
+             "-D 'python3_pkgversion ${ver//\./}'"
+             "-D 'python3_version_nodots ${ver//\./}'")
+        rpms=$(eval "rpmspec -q --buildrequires ${opt[@]} $DIR/ceph.spec")
+        $SUDO $zypp_install $rpms || exit 1
         ;;
     *)
         echo "$ID is unknown, dependencies will have to be installed manually."
