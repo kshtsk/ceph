@@ -61,7 +61,7 @@
 	url = https://github.com/ceph/rook-client-python.git
 [submodule "s3select"]
 	path = src/s3select
-	url = https://github.com/ceph/s3select.git
+	url = https://github.com/kshtsk/s3select.git
 [submodule "src/libkmip"]
 	path = src/libkmip
 	url = https://github.com/ceph/libkmip

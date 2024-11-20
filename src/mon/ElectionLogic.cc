@@ -171,7 +171,7 @@ void ElectionLogic::end_election_period()
   
   // did i win?
   if (electing_me &&
-      acked_me.size() > (elector->paxos_size() / 2)) {
+      acked_me.size() > static_cast<unsigned>(elector->paxos_size() / 2)) {
     // i win
     declare_victory();
   } else {
@@ -345,13 +345,13 @@ void ElectionLogic::propose_connectivity_handler(int from, epoch_t mepoch,
     double best_score = 0;
     double last_voted_for_score = 0;
     ldout(cct, 30) << "elector->paxos_size(): " << elector->paxos_size() << dendl;
-    for (unsigned i = 0; i < elector->paxos_size(); ++i) {
+    for (int i = 0; i < elector->paxos_size(); ++i) {
       double score = connectivity_election_score(i);
       if (score > best_score) {
 	best_scorer = i;
 	best_score = score;
       }
-      if (last_voted_for >= 0 && i == static_cast<unsigned>(last_voted_for)) {
+      if (last_voted_for >= 0 && i == last_voted_for) {
 	last_voted_for_score = score;
       }
     }
@@ -489,7 +489,7 @@ void ElectionLogic::receive_ack(int from, epoch_t from_epoch)
   // is that _everyone_?
   if (electing_me) {
     acked_me.insert(from);
-    if (acked_me.size() == elector->paxos_size()) {
+    if (acked_me.size() == static_cast<unsigned>(elector->paxos_size())) {
       // if yes, shortcut to election finish
       declare_victory();
     }
