@@ -1,0 +1,80 @@
+name: Patch Tracker
+description: Track patches across releases
+title: "component: description"
+projects: ["clyso/2"]
+type: Patch Tracking
+body:
+  - type: dropdown
+    id: patch-source
+    attributes:
+      label: What is the source of the patch?
+      description: Whether it's an upstream or downstream patch
+      multiple: false
+      options:
+        - Upstream
+        - Downstream
+    validations:
+      required: true
+
+  - type: input
+    id: upstream-tracker
+    attributes:
+      label: Upstream Tracker
+      description: Tracker from https://tracker.ceph.com
+      placeholder: https://tracker.ceph.com/issues/NNNN
+    validations:
+      required: false
+
+  - type: input
+    id: upstream-original-pr
+    attributes:
+      label: Upstream Original PR
+      description: Original upstream PR (from ceph/ceph)
+      placeholder: https://github.com/ceph/ceph/pull/NNNN
+    validations:
+      required: false
+
+  - type: input
+    id: upstream-fix-available-in
+    attributes:
+      label: Upstream fix available in
+      description: Releases the fix is available in
+      placeholder: (main, tentacle, squid, ...)
+    validations:
+      required: false
+
+  - type: textarea
+    id: upstream-backports-to
+    attributes:
+      label: Upstream backports
+      description: Releases upstream marked backports to, with PRs if available
+      placeholder: |
+        E.g.,
+        squid: https://github.com/ceph/ceph/pull/NNNN
+        reef: https://github.com/ceph/ceph/pull/MMMM
+    validations:
+      required: false
+
+  - type: textarea
+    id: clyso-tickets
+    attributes:
+      label: Clyso Tickets
+      description: URL to Clyso support tickets (if any)
+    validations:
+      required: false
+
+  - type: input
+    id: source-branch
+    attributes:
+      label: Branch in clyso/ceph
+      description: Existing branch in clyso/ceph (if any)
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: Additional Information
+      description: Links, references, context, or any additional information
+    validations:
+      required: false

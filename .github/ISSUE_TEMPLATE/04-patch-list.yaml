@@ -1,0 +1,22 @@
+name: Candidate Patch List
+description: Maintain a list of candidate patches for a release, to review.
+title: "XX.YY.ZZ - Patch List"
+projects: ["clyso/2"]
+type: Patch List
+labels:
+  - backport-candidate
+  - question
+body:
+  - type: textarea
+    id: patch-list
+    attributes:
+      label: List of patches / PRs to potentially backport
+      description: One per line, bonus points if parent tracker is provided
+      placeholder: |
+        E.g.,
+
+        1. ceph/ceph#54150 -- https://tracker.ceph.com/issues/61820
+        2. ceph/ceph#55697 -- https://tracker.ceph.com/issues/56057
+        3. some other patch (sha1)
+
+        ...

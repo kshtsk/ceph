@@ -1,0 +1,58 @@
+name: Backport Request
+description: Request a backport to a given release
+title: "XX.YY.ZZ - component: description"
+projects: ["clyso/2"]
+type: Backport
+body:
+  - type: input
+    id: upstream-original-tracker
+    attributes:
+      label: Original Upstream Tracker
+      description: Tracker from https://tracker.ceph.com
+      placeholder: https://tracker.ceph.com/issues/NNNN
+    validations:
+      required: false
+
+  - type: input
+    id: upstream-backport-tracker
+    attributes:
+      label: Upstream Backport Tracker
+      description: Backport tracker from https://tracker.ceph.com (if any)
+      placeholder: https://tracker.ceph.com/issues/NNNN
+    validations:
+      required: false
+
+  - type: input
+    id: upstream-original-pr
+    attributes:
+      label: Upstream Original PR
+      description: Original upstream PR (from ceph/ceph)
+      placeholder: https://github.com/ceph/ceph/pull/NNNN
+    validations:
+      required: false
+
+  - type: input
+    id: upstream-backport-pr
+    attributes:
+      label: Upstream Backport PR
+      description: Upstream backport PR (from ceph/ceph, if any)
+      placeholder: https://github.com/ceph/ceph/pull/NNNN
+    validations:
+      required: false
+
+  - type: input
+    id: related-issue
+    attributes:
+      label: Related parent issue
+      description: Known related parent issue (if any)
+      placeholder: https://github.com/clyso/ceph/issues/NNNN
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: Additional Information
+      description: Links, references, context, or any additional information
+    validations:
+      required: false
