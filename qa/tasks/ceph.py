@@ -699,8 +699,7 @@ def cluster(ctx, config):
     log.info('Generating config...')
     remotes_and_roles = ctx.cluster.remotes.items()
     roles = [role_list for (remote, role_list) in remotes_and_roles]
-    ips = [host for (host, port) in
-           (remote.ssh.get_transport().getpeername() for (remote, role_list) in remotes_and_roles)]
+    ips = [remote.resolve_ip() for (remote, role_list) in remotes_and_roles]
     mons = get_mons(
         roles, ips, cluster_name,
         mon_bind_msgr2=config.get('mon_bind_msgr2'),
