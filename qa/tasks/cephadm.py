@@ -1932,8 +1932,7 @@ def initialize_config(ctx, config):
     # mon ips
     log.info('Choosing monitor IPs and ports...')
     remotes_and_roles = _cephadm_remotes(ctx)
-    ips = [host for (host, port) in
-           (remote.ssh.get_transport().getpeername() for (remote, role_list) in remotes_and_roles)]
+    ips = [remote.resolve_ip() for (remote, role_list) in remotes_and_roles]
 
     if config.get('roleless', False):
         # mons will be named after hosts
@@ -2176,7 +2175,7 @@ def deploy_samba_ad_dc(ctx, config):
             "you must specify a role to allocate a host for the AD DC"
         )
     (remote,) = ctx.cluster.only(role).remotes.keys()
-    ip = remote.ssh.get_transport().getpeername()[0]
+    ip = remote.resolve_ip()
     cengine = 'podman'
     try:
         log.info("Testing if podman is available")
