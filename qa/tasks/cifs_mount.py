@@ -64,7 +64,7 @@ def task(ctx, config):
     from .samba import get_sambas
     samba_roles = ['samba.{id_}'.format(id_=id_) for id_ in teuthology.all_roles_of_type(ctx.cluster, 'samba')]
     sambas = list(get_sambas(ctx=ctx, roles=samba_roles))
-    (ip, _) = sambas[0][1].ssh.get_transport().getpeername()
+    (ip, _) = sambas[0][1].resolve_ip()
     log.info('samba ip: {ip}'.format(ip=ip))
 
     for id_, remote in clients:
