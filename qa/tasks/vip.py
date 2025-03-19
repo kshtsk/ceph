@@ -83,7 +83,7 @@ def task(ctx, config):
 
     log.info("Allocating static IPs for each host...")
     for remote in ctx.cluster.remotes.keys():
-        ip = remote.ssh.get_transport().getpeername()[0]
+        ip = remote.resolve_ip()
         log.info(f'peername {ip}')
         mip = ipaddress.ip_address(ip)
         vnet, vips = _map_vips(mip, count + 1)
