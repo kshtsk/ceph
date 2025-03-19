@@ -1570,8 +1570,7 @@ def initialize_config(ctx, config):
     # mon ips
     log.info('Choosing monitor IPs and ports...')
     remotes_and_roles = ctx.cluster.remotes.items()
-    ips = [host for (host, port) in
-           (remote.ssh.get_transport().getpeername() for (remote, role_list) in remotes_and_roles)]
+    ips = [remote.resolve_ip() for (remote, role_list) in remotes_and_roles]
 
     if config.get('roleless', False):
         # mons will be named after hosts
