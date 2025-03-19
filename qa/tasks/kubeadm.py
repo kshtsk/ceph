@@ -257,7 +257,7 @@ def kubeadm_init_join(ctx, config):
                 if not bootstrap_remote:
                     bootstrap_remote = remote
                 if remote not in remotes:
-                    remotes[remote] = remote.ssh.get_transport().getpeername()[0]
+                    remotes[remote] = remote.resolve_ip()
     if not bootstrap_remote:
         raise RuntimeError('must define at least one host.something role')
     ctx.kubeadm[cluster_name].bootstrap_remote = bootstrap_remote
@@ -367,7 +367,7 @@ def allocate_pod_subnet(ctx, config):
 
     log.info('Identifying pod subnet')
     remote = list(ctx.cluster.remotes.keys())[0]
-    ip = remote.ssh.get_transport().getpeername()[0]
+    ip = remote.resolve_ip()
     mip = ipaddress.ip_address(ip)
     vnet = map_vnet(mip)
     assert vnet
