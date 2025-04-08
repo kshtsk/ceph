@@ -23,15 +23,15 @@ def task(ctx, config):
     ``ceph-fuse`` and another with ``kclient``.
 
     ``brxnet`` should be a Private IPv4 Address range, default range is
-    [192.168.0.0/16]
+    '192.168.0.0/16'
 
     Example that mounts all clients::
 
         tasks:
         - ceph:
         - ceph-fuse:
+            brxnet: '192.168.0.0/16'
         - interactive:
-        - brxnet: [192.168.0.0/16]
 
     Example that uses both ``kclient` and ``ceph-fuse``::
 
@@ -138,11 +138,13 @@ def task(ctx, config):
     skipped = {}
     remotes = set()
 
-    brxnet = config.get("brxnet", None)
+    overrides = ctx.config.get('overrides', {})
+    task_overrides = overrides.get('ceph-fuse', {})
+
+    brxnet = overrides.get('brxnet', config.get('brxnet', None))
 
     # Construct any new FuseMount instances
-    overrides = ctx.config.get('overrides', {}).get('ceph-fuse', {})
-    top_overrides = dict(filter(lambda x: 'client.' not in x[0], overrides.items()))
+    top_overrides = dict(filter(lambda x: 'client.' not in x[0], task_overrides.items()))
     for id_, remote in clients:
         entity = f"client.{id_}"
         client_config = config.get(entity)
@@ -151,7 +153,7 @@ def task(ctx, config):
         # top level overrides
         misc.deep_merge(client_config, top_overrides)
         # mount specific overrides
-        client_config_overrides = overrides.get(entity)
+        client_config_overrides = task_overrides.get(entity)
         misc.deep_merge(client_config, client_config_overrides)
         log.info(f"{entity} config is {client_config}")
 
