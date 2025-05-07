@@ -1633,6 +1633,9 @@ def task(ctx, config):
             containers:
               image: 'quay.io/ceph-ci/ceph'
 
+    By default, the image tag is determined as suite 'branch' value,
+    or 'sha1' if provided.
+
     Using overrides makes it possible to customize it per run.
     The equivalent 'overrides' section looks like:
 
@@ -1644,6 +1647,14 @@ def task(ctx, config):
               url:  registry-url
               username: registry-user
               password: registry-password
+
+    The image tag can be overridden using ':' notation, for example,
+    for the tag 'latest', the 'overrides' section looks like:
+
+        overrides:
+          cephadm:
+            containers:
+              image: 'quay.io/ceph-ci/ceph:latest'
 
     :param ctx: the argparse.Namespace object
     :param config: the config dict
@@ -1691,7 +1702,10 @@ def task(ctx, config):
         sha1 = config.get('sha1')
         flavor = config.get('flavor', 'default')
 
-        if sha1:
+        if ':' in container_image_name:
+            log.info('The image is provided with tag already, just it as is')
+            ctx.ceph[cluster_name].image = container_image_name
+        elif sha1:
             if flavor == "crimson":
                 ctx.ceph[cluster_name].image = container_image_name + ':' + sha1 + '-' + flavor
             else:
