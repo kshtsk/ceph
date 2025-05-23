@@ -5,6 +5,8 @@ overrides:
     log-ignorelist:
       - CEPHADM_AGENT_DOWN
       - CEPHADM_FAILED_DAEMON
+      - \(POOL_APP_NOT_ENABLED\)
+      - \(MON_DOWN\)
 tasks:
 - cephadm:
     conf:
