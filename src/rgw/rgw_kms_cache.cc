@@ -94,7 +94,8 @@ void KMSCache::make_ttl_reaper_async(
       },
       boost::asio::bind_cancellation_slot(
           cancel_signal.slot(),
-          boost::asio::bind_executor(strand, boost::asio::detached)));
+          boost::asio::bind_executor(strand,
+                                     [](const auto &) { /* do nothing */ })));
 }
 
 KMSCache::KMSCache(CephContext* _cct, std::unique_ptr<Keyring> _keyring)
