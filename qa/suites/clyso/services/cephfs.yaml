@@ -1,0 +1,16 @@
+tasks:
+- print: "=== DEPLOYING CEPHFS SERVICE ==="
+
+# Use cephadm.shell to execute commands via cephadm
+- cephadm.shell:
+    host.a:
+      - echo "Creating CephFS pools..."
+      - ceph fs volume create cephfs
+      - ceph orch apply mds cephfs --placement="2"
+      - sleep 10
+      
+      - echo "=== CEPHFS DEPLOYMENT VERIFICATION ==="
+      - ceph fs ls
+      - ceph fs status cephfs
+      - ceph fs ls | grep cephfs
+    

@@ -1,0 +1,51 @@
+roles:
+- - host.a
+  - mon.a
+  - mgr.a  
+  - osd.0
+  - osd.2
+  - client.0
+- - host.b
+  - mgr.b
+  - osd.1
+  - osd.3
+
+tasks:
+# Install system packages via pexec (avoids CEPH RPM installation)
+- pexec:
+    all:
+    - sudo dnf install s3cmd curl jq -y
+
+- cephadm:
+
+- cephadm.shell:
+    host.a:
+      - echo "=== BOOTSTRAP COMPLETE ==="
+      - ceph orch status
+      - ceph orch ps
+      - ceph version
+      - ceph -s
+      - ceph orch device ls
+
+openstack:
+- volumes:
+    count: 4
+    size: 20
+
+overrides:
+  ceph:
+    conf:
+      global:
+        osd_pool_default_size: 2
+        osd_pool_default_min_size: 1
+      osd:
+        osd shutdown pgref assert: true
+      mds:
+        max_mds: 2
+    log-only-match:
+      - CEPHADM_
+    log-ignorelist:
+      - CEPHADM_DAEMON_PLACE_FAIL
+      - CEPHADM_FAILED_DAEMON
+      - CEPHADM_STRAY_DAEMON
+      - CEPHADM_AGENT_DOWN
