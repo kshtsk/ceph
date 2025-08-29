@@ -1,11 +1,14 @@
 """
 Workunit task -- Run ceph on sets of specific clients
 """
+import functools
 import logging
 import pipes
 import os
 import re
 import shlex
+
+import jinja2
 
 from tasks.util import get_remote_for_role
 from tasks.util.workunit import get_refspec_after_overrides
@@ -17,6 +20,50 @@ from teuthology.parallel import parallel
 from teuthology.orchestra import run
 
 log = logging.getLogger(__name__)
+
+
+def _convert_strs_in(o, conv):
+    """A function to walk the contents of a dict/list and recursively apply
+    a conversion function (`conv`) to the strings within.
+    """
+    if isinstance(o, str):
+        return conv(o)
+    if isinstance(o, dict):
+        for k in o:
+            o[k] = _convert_strs_in(o[k], conv)
+    if isinstance(o, list):
+        o[:] = [_convert_strs_in(v, conv) for v in o]
+    return o
+
+
+def _apply_template(jinja_env, rctx, template):
+    """Apply jinja2 templating to the template string `template` via the jinja
+    environment `jinja_env`, passing a dictionary containing top-level context
+    to render into the template.
+    """
+    if '{{' in template or '{%' in template:
+        return jinja_env.from_string(template).render(**rctx)
+    return template
+
+
+def _template_transform(ctx, config, target):
+    """Apply jinja2 based templates to strings within the target object,
+    returning a transformed target. Target objects may be a list or dict or
+    str.
+
+    Note that only string values in the list or dict objects are modified.
+    Therefore one can read & parse yaml or json that contain templates in
+    string values without the risk of changing the structure of the yaml/json.
+    """
+    jenv = getattr(ctx, '_jinja_env', None)
+    if jenv is None:
+        loader = jinja2.BaseLoader()
+        jenv = jinja2.Environment(loader=loader)
+        setattr(ctx, '_jinja_env', jenv)
+    rctx = dict(ctx=ctx, config=config)
+    conv = functools.partial(_apply_template, jenv, rctx)
+    return _convert_strs_in(target, conv)
+
 
 def task(ctx, config):
     """
@@ -89,12 +136,28 @@ def task(ctx, config):
               client.0:
                 - test-ceph-helpers.sh
 
+    Environment variables can use Jinja2 templates that reference ctx.config values::
+
+        tasks:
+        - workunit:
+            clients:
+              client.0: [upgrade.sh]
+            env:
+              BASE_IMAGE: "{{ctx.config.base_image}}"
+              TARGET_IMAGE: "{{ctx.config.target_image}}"
+
+    Templates can access any value from ctx.config, including those passed
+    via external configuration files to teuthology-suite.
+
     :param ctx: Context
     :param config: Configuration
     """
     assert isinstance(config, dict)
     assert isinstance(config.get('clients'), dict), \
         'configuration must contain a dictionary of clients'
+
+    # Apply template processing to the entire config
+    config = _template_transform(ctx, config, config)
 
     overrides = ctx.config.get('overrides', {})
     refspec = get_refspec_after_overrides(config, overrides)
