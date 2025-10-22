@@ -60,8 +60,7 @@ class CBT(Task):
 
             # set auth details
             remotes_and_roles = self.ctx.cluster.remotes.items()
-            ips = [host for (host, port) in
-                   (remote.ssh.get_transport().getpeername() for (remote, role_list) in remotes_and_roles)]
+            ips = [remote.resolve_ip() for (remote, role_list) in remotes_and_roles]
             benchmark_config['cosbench']['auth'] = "username=cosbench:operator;password=intel2012;url=http://%s:80/auth/v1.0;retry=9" %(ips[0])
         client_endpoints_config = self.config.get('client_endpoints', None)
         monitoring_profiles = self.config.get('monitoring_profiles', {})
