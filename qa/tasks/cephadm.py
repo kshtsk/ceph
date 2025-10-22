@@ -2036,7 +2036,7 @@ def deploy_samba_ad_dc(ctx, config):
             "you must specify a role to allocate a host for the AD DC"
         )
     (remote,) = ctx.cluster.only(role).remotes.keys()
-    ip = remote.ssh.get_transport().getpeername()[0]
+    ip = remote.resolve_ip()
     cengine = 'podman'
     try:
         log.info("Testing if podman is available")
