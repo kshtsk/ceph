@@ -327,35 +327,7 @@ int process_request(const RGWProcessEnv& penv,
     abort_early(s, NULL, -ERR_METHOD_NOT_ALLOWED, handler, yield);
     goto done;
   }
-  is_health_request = (op->get_type() == RGW_OP_GET_HEALTH_CHECK);
-  {
-    s->trace_enabled = tracing::rgw::tracer.is_enabled();
-    if (!is_health_request) {
-      std::string script;
-      auto rc = rgw::lua::read_script(s, penv.lua.manager.get(),
-                                      s->bucket_tenant, s->yield,
-                                      rgw::lua::context::preRequest, script);
-      if (rc == -ENOENT) {
-        // no script, nothing to do
-      } else if (rc < 0) {
-        ldpp_dout(op, 5) <<
-          "WARNING: failed to execute pre request script. "
-          "error: " << rc << dendl;
-      } else {
-        int script_return_code = 0;
-        rc = rgw::lua::request::execute(rest, penv.olog.get(), s, op, script, script_return_code);
-        if (rc < 0) {
-          ldpp_dout(op, 5) <<
-            "WARNING: failed to execute pre request script. "
-            "error: " << rc << dendl;
-        }
-        if (script_return_code == -EPERM) {
-          abort_early(s, op, script_return_code, handler, yield);
-          goto done;
-        }
-      }
-    }
-  }
+
   std::tie(ret,c) = schedule_request(scheduler, s, op);
   if (ret < 0) {
     if (ret == -EAGAIN) {
@@ -406,7 +378,35 @@ int process_request(const RGWProcessEnv& penv,
 
     s->trace = tracing::rgw::tracer.start_trace(op->name(), s->trace_enabled);
     s->trace->SetAttribute(tracing::rgw::TRANS_ID, s->trans_id);
-
+  is_health_request = (op->get_type() == RGW_OP_GET_HEALTH_CHECK);
+  {
+    s->trace_enabled = tracing::rgw::tracer.is_enabled();
+    if (!is_health_request) {
+      std::string script;
+      auto rc = rgw::lua::read_script(s, penv.lua.manager.get(),
+                                      s->bucket_tenant, s->yield,
+                                      rgw::lua::context::preRequest, script);
+      if (rc == -ENOENT) {
+        // no script, nothing to do
+      } else if (rc < 0) {
+        ldpp_dout(op, 5) <<
+          "WARNING: failed to execute pre request script. "
+          "error: " << rc << dendl;
+      } else {
+        int script_return_code = 0;
+        rc = rgw::lua::request::execute(rest, penv.olog.get(), s, op, script, script_return_code);
+        if (rc < 0) {
+          ldpp_dout(op, 5) <<
+            "WARNING: failed to execute pre request script. "
+            "error: " << rc << dendl;
+        }
+        if (script_return_code == -EPERM) {
+          abort_early(s, op, script_return_code, handler, yield);
+          goto done;
+        }
+      }
+    }
+  }
     ret = rgw_process_authenticated(handler, op, req, s, yield, driver);
     if (ret < 0) {
       abort_early(s, op, ret, handler, yield);
