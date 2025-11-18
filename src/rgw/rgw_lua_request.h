@@ -24,6 +24,7 @@ int execute(
     const std::string& script);
 
 int execute(
+    rgw::sal::Driver* driver,
     RGWREST* rest,
     OpsLogSink* olog,
     req_state *s, 

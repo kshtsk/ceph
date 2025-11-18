@@ -394,7 +394,7 @@ int process_request(const RGWProcessEnv& penv,
           "error: " << rc << dendl;
       } else {
         int script_return_code = 0;
-        rc = rgw::lua::request::execute(rest, penv.olog.get(), s, op, script, script_return_code);
+        rc = rgw::lua::request::execute(driver, rest, penv.olog.get(), s, op, script, script_return_code);
         if (rc < 0) {
           ldpp_dout(op, 5) <<
             "WARNING: failed to execute pre request script. "

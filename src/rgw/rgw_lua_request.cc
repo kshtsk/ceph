@@ -847,6 +847,7 @@ int execute(
 }
 
 int execute(
+    rgw::sal::Driver* driver,
     RGWREST* rest,
     OpsLogSink* olog,
     req_state* s, 
@@ -855,7 +856,7 @@ int execute(
 )
 {
   int dummy_script_return_code = 0;
-  return execute(rest, olog, s, op, script, dummy_script_return_code);
+  return execute(driver, rest, olog, s, op, script, dummy_script_return_code);
 }
 
 } // namespace rgw::lua::request
