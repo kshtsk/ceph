@@ -48,8 +48,12 @@ while true; do
     
     echo "--- Daemon Versions ---"
     $SUDO $CEPHADM_PATH shell -- ceph versions
-    
-    in_progress=$(echo "$upgrade_status" | jq -r ".in_progress")
+
+    if [[ "$upgrade_status" =~ "no upgrades in progress" ]] ; then
+        in_progress="false"
+    else
+        in_progress=$(echo "$upgrade_status" | jq -r ".in_progress")
+    fi
     version_count=$($SUDO $CEPHADM_PATH shell -- ceph versions --format json | jq ".overall | length")
     
     echo "Upgrade in progress: $in_progress"
