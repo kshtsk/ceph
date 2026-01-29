@@ -207,7 +207,9 @@ function TEST_recovery_limit_adjustment_mclock() {
     run_mon $dir a || return 1
     run_mgr $dir x || return 1
 
-    run_osd $dir 0 --osd_op_queue=mclock_scheduler || return 1
+    run_osd $dir 0 --osd_op_queue=mclock_scheduler \
+                   --osd_mclock_iops_capacity_threshold_hdd=35000 || return 1
+
     local osd0=$(get_asok_path osd.0)
     local recoveries=$(CEPH_ARGS='' ceph --format=json daemon $osd0 \
         config get osd_recovery_max_active)
