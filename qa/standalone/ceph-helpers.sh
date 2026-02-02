@@ -24,6 +24,7 @@ PG_NUM=4
 TMPDIR=${TMPDIR:-/tmp}
 CEPH_BUILD_VIRTUALENV=${TMPDIR}
 TESTDIR=${TESTDIR:-${TMPDIR}}
+TRACE=${TRACE:-$(shopt -q -o xtrace && echo true || echo false)}
 
 if [ `uname` = FreeBSD ]; then
     SED=gsed
@@ -333,8 +334,7 @@ function test_kill_daemon() {
 # @return 0 on success, 1 on error
 #
 function kill_daemons() {
-    local trace=$(shopt -q -o xtrace && echo true || echo false)
-    $trace && shopt -u -o xtrace
+    $TRACE && shopt -u -o xtrace
     local dir=$1
     local signal=${2:-TERM}
     local name_prefix=$3 # optional, osd, mon, osd.1
@@ -349,7 +349,7 @@ function kill_daemons() {
     wait_background pids
     status=$?
 
-    $trace && shopt -s -o xtrace
+    $TRACE && shopt -s -o xtrace
     return $status
 }
 
@@ -1595,8 +1595,7 @@ calc() { $AWK "BEGIN{print $*}"; }
 # @return a list of sleep delays
 #
 function get_timeout_delays() {
-    local trace=$(shopt -q -o xtrace && echo true || echo false)
-    $trace && shopt -u -o xtrace
+    $TRACE && shopt -u -o xtrace
     local timeout=$1
     local first_step=${2:-1}
     local max_timeout=${3:-$MAX_TIMEOUT}
@@ -1619,7 +1618,7 @@ function get_timeout_delays() {
     if test "$(calc $total \< $timeout)" = "1"; then
         echo -n "$(calc $timeout - $total) "
     fi
-    $trace && shopt -s -o xtrace
+    $TRACE && shopt -s -o xtrace
 }
 
 function test_get_timeout_delays() {
