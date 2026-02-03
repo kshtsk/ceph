@@ -53,9 +53,10 @@ function TEST_availablity_score() {
 
     ceph -s 
     ceph health | grep HEALTH_OK || return 1
-    # enable feature
+    # enable feature and wait a bit before it gets activated
     ceph config set mon enable_availability_tracking true
- 
+    sleep 3
+
     ceph osd pool availability-status
     AVAILABILITY_STATUS=$(ceph osd pool availability-status | grep -w "foo")
     SCORE=$(echo "$AVAILABILITY_STATUS" | awk '{print $7}')
