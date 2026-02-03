@@ -2503,7 +2503,7 @@ function inject_eio() {
     type=$(cat $dir/$osd_id/type)
     set_config osd $osd_id ${type}_debug_inject_read_err true || return 1
     local loop=0
-    local $osd_asok=$(get_asok_path osd.$osd_id)
+    local osd_asok=$(get_asok_path osd.$osd_id)
     while ( CEPH_ARGS='' ceph --admin-daemon $osd_asok \
              inject${which}err $poolname $objname $shard_id | grep -q Invalid ); do
         loop=$(expr $loop + 1)
