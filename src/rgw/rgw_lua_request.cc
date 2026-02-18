@@ -272,30 +272,77 @@ struct OwnerMetaTable : public EmptyMetaTable {
 
 struct BucketTagsTable : public EmptyMetaTable {
   static int IndexClosure(lua_State* L) {
-    auto attrs = reinterpret_cast<std::map<std::string, bufferlist>*>(
-        lua_touserdata(L, lua_upvalueindex(SECOND_UPVAL)));
-
+    const auto bl = reinterpret_cast<bufferlist*>(lua_touserdata(L, lua_upvalueindex(SECOND_UPVAL)));
     const char* key = luaL_checkstring(L, 2);
 
-    if (attrs) {
-      auto it = attrs->find(RGW_ATTR_TAGS);
-      if (it != attrs->end()) {
+    if (bl) {
+      try{
         RGWObjTags tags;
-        auto bl_it = it->second.cbegin();
+        auto bl_it = bl->cbegin();
         tags.decode(bl_it);
-        
+
         const auto& tag_map = tags.get_tags();
         auto tag_it = tag_map.find(key);
-        
+
         if (tag_it != tag_map.end()) {
           pushstring(L, tag_it->second);
           return ONE_RETURNVAL;
         }
+      }catch(const buffer::error& err){
+        lua_pushnil(L);
+        return ONE_RETURNVAL;
       }
     }
-    
     lua_pushnil(L);
     return ONE_RETURNVAL;
+  }
+
+  static int LenClosure(lua_State* L) {
+    const auto bl = reinterpret_cast<bufferlist*>(lua_touserdata(L, lua_upvalueindex(FIRST_UPVAL)));
+    if (bl) {
+      try{
+        RGWObjTags tags;
+        auto bl_it = bl->cbegin();
+        tags.decode(bl_it);
+        lua_pushinteger(L, tags.get_tags().size());
+        return ONE_RETURNVAL;
+      }catch(const buffer::error& err){
+        lua_pushinteger(L, 0);
+        return ONE_RETURNVAL;
+      }
+    }
+    lua_pushinteger(L, 0);
+    return ONE_RETURNVAL;
+  }
+
+  static int PairsClosure(lua_State* L) {
+    const auto bl = reinterpret_cast<bufferlist*>(lua_touserdata(L, lua_upvalueindex(SECOND_UPVAL)));
+    lua_newtable(L);
+    if (bl) {
+      try{
+        RGWObjTags tags;
+        auto bl_it = bl->cbegin();
+        tags.decode(bl_it);
+        for (const auto& [key, value] : tags.get_tags()) {
+          pushstring(L, key);
+          pushstring(L, value);
+          lua_settable(L, -3);
+      }
+      lua_getglobal(L, "next");
+      lua_insert(L, -2);
+      lua_pushnil(L);
+      return THREE_RETURNVALS;
+      }catch(const buffer::error& err){
+        lua_getglobal(L, "next");
+        lua_insert(L, -2);
+        lua_pushnil(L);
+        return THREE_RETURNVALS;
+      }
+    }
+    lua_getglobal(L, "next");
+    lua_insert(L, -2);
+    lua_pushnil(L);
+    return THREE_RETURNVALS;
   }
 };
 
@@ -328,8 +375,13 @@ struct BucketMetaTable : public EmptyMetaTable {
     } else if (strcasecmp(index, "MTime") == 0) {
       pushtime(L, bucket->get_modification_time());
     } else if (strcasecmp(index, "Tags") == 0) {
-      create_metatable<BucketTagsTable>(L, name, index, false, &(s->bucket_attrs));
-    }else if (strcasecmp(index, "Quota") == 0) {
+      auto it = s->bucket_attrs.find(RGW_ATTR_TAGS);
+      if (it != s->bucket_attrs.end()) {
+        create_metatable<BucketTagsTable>(L, name, index, false, &(it->second));
+      } else {
+        lua_pushnil(L);
+    }
+    } else if (strcasecmp(index, "Quota") == 0) {
       create_metatable<QuotaMetaTable>(L, name, index, false, &(bucket->get_info().quota));
     } else if (strcasecmp(index, "PlacementRule") == 0) {
       create_metatable<PlacementRuleMetaTable>(L, name, index, false, &(bucket->get_info().placement_rule));
