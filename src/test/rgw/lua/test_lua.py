@@ -283,7 +283,11 @@ end
 
     result = conn.get_object(Bucket=bucket_name, Key=key)
     message = result['ResponseMetadata']['HTTPHeaders']['x-amz-meta-test']
-    assert message == bucket_name+","+key+","+key+",0,1970-01-01 00:00:00"
+    # the MTime part is supposed to be a datetime "1970-01-01 00:00:00"
+    # however in different TZ environment the hours can be different,
+    # for example, for UTC+1, zero date turns into "1970-01-01 01:00:00"
+    # so we just truncate the message by " 00:00:00", i.e. 9 characters
+    assert message[:-9] == bucket_name+","+key+","+key+",0,1970-01-01"
 
     # cleanup
     conn.delete_object(Bucket=bucket_name, Key=key)
