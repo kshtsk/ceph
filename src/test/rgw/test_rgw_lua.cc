@@ -1637,6 +1637,6 @@ TEST(TestRGWLua, BucketTags)
   s.bucket_attrs[RGW_ATTR_TAGS] = bl;
   s.bucket.reset(new sal::RadosBucket(nullptr, info));
 
-  const auto rc = lua::request::execute(nullptr, nullptr, &s, nullptr, script);
-  ASSERT_EQ(rc, 0);
+const auto rc = lua::request::execute(nullptr, nullptr, nullptr, &s, nullptr, script);
+ASSERT_EQ(rc, 0);
 }
