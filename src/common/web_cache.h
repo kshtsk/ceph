@@ -258,7 +258,7 @@ class WebCache {
 };
 
 template <typename Key, typename Value>
-WebCache<Key, Value>::Node* WebCache<Key, Value>::sieve_evict() {
+typename WebCache<Key, Value>::Node* WebCache<Key, Value>::sieve_evict() {
   if (_sieve_queue.empty()) {
     return nullptr;
   }
@@ -393,7 +393,7 @@ ceph::real_time WebCache<Key, Value>::add(const Key& key, ValuePtr value) {
 }
 
 template <typename Key, typename Value>
-WebCache<Key, Value>::ValuePtr WebCache<Key, Value>::lookup_or(
+typename WebCache<Key, Value>::ValuePtr WebCache<Key, Value>::lookup_or(
     const Key& key, ValuePtr new_val) {
   {
     std::shared_lock<std::shared_mutex> cache_lock(_cache_mutex);
@@ -450,7 +450,7 @@ WebCache<Key, Value>::lookup_unmutexed(const Key& key) {
 }
 
 template <typename Key, typename Value>
-WebCache<Key, Value>::Node& WebCache<Key, Value>::insert_or_existing_unmutexed(
+typename WebCache<Key, Value>::Node& WebCache<Key, Value>::insert_or_existing_unmutexed(
     const Key& key, ValuePtr value) {
   const auto& [it, took_place] = _lookup.emplace(
       std::piecewise_construct, std::forward_as_tuple(key),
@@ -480,7 +480,7 @@ WebCache<Key, Value>::Node& WebCache<Key, Value>::insert_or_existing_unmutexed(
 }
 
 template <typename Key, typename Value>
-WebCache<Key, Value>::SieveRemoveRet
+typename WebCache<Key, Value>::SieveRemoveRet
 WebCache<Key, Value>::sieve_remove_unmutexed(
     SieveQueue& sieve_queue, Node* sieve_hand, const Node& node) {
   const bool was_hand = &node == sieve_hand;
