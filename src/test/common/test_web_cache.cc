@@ -98,7 +98,7 @@ TEST_F(WebCacheTest, MultipleAddsToEmptyReturnFirstTs) {
 }
 
 TEST_F(WebCacheTest, TwoSameKeyAddsGivesSize1) {
-  const auto _ = {
+  [[maybe_unused]] const auto _ = {
       _uut->add(a_key, a_valptr),
       _uut->add(a_key, a_valptr),
       _uut->add(a_key, a_valptr),
@@ -107,7 +107,7 @@ TEST_F(WebCacheTest, TwoSameKeyAddsGivesSize1) {
 }
 
 TEST_F(WebCacheTest, TwoDistinctKeyAddsGiveSize2) {
-  const auto _ = {
+  [[maybe_unused]] const auto _ = {
       _uut->add("a", a_valptr),
       _uut->add("b", a_valptr),
   };
