@@ -6,11 +6,10 @@ tasks:
         set -x
         ceph orch ps
         ceph orch device ls
-        DEVID=$(ceph device ls | grep osd.1 | awk '{print $1}')
-        HOST=$(ceph orch device ls | grep $DEVID | awk '{print $1}')
-        DEV=$(ceph orch device ls | grep $DEVID | awk '{print $2}')
-        echo "host $HOST, dev $DEV, devid $DEVID"
+        DEVPATH=$(ceph orch device ls --format=json | jq -r '.[] | .devices[] | select(.lvs[].osd_id == "1") | .path')
+        DEVHOST=$(ceph orch device ls --format=json | jq -r '.[] | .addr as $host | .devices[] | select(.lvs[].osd_id == "1") | $host')
+        echo "host $DEVHOST, dev $DEVPATH"
         ceph orch osd rm 1
         while ceph orch osd rm status | grep ^1 ; do sleep 5 ; done
-        ceph orch device zap $HOST $DEV --force
+        ceph orch device zap $DEVHOST $DEVPATH --force
         while ! ceph osd dump | grep osd.1 | grep up ; do sleep 5 ; done
