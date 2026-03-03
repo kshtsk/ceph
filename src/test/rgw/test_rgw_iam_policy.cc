@@ -1507,3 +1507,13 @@ TEST(Condition, ArnLike)
     EXPECT_FALSE(ArnLike.eval({{key, "arn:aws:s3:::user"}}));
   }
 }
+
+class ConditionTest : public ::testing::Test {
+protected:
+  intrusive_ptr<CephContext> cct;
+
+  ConditionTest() {
+    cct.reset(new CephContext(CEPH_ENTITY_TYPE_CLIENT), false);
+  }
+};
+
