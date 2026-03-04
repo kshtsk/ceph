@@ -43,10 +43,10 @@ def run_in_keystone_venv(ctx, client, args, **kwargs):
                             '.tox/venv/bin/activate',
                             run.Raw('&&')
                         ] + args, **kwargs)
-
+# OS_KEYSTONE_CONFIG_FILES=/home/ubuntu/cephtest/keystone/etc/keystone.conf uwsgi --plugin python3 -H /home/ubuntu/cephtest/keystone/.tox/venv --http-socket :5000 --module keystone.wsgi.api:application
 def get_keystone_venved_cmd(ctx, cmd, args, env=[]):
     kbindir = get_keystone_dir(ctx) + '/.tox/venv/bin/'
-    return env + [ kbindir + 'python', kbindir + cmd ] + args
+    return env + [ kbindir + cmd ] + args
 
 @contextlib.contextmanager
 def download(ctx, config):
@@ -196,7 +196,7 @@ def setup_venv(ctx, config):
 
         run_in_keystone_venv(ctx, client,
             [   'pip', 'install',
-                'python-openstackclient',
+                'python-openstackclient', 'uwsgi',
             ])
     try:
         yield
@@ -276,8 +276,10 @@ def run_keystone(ctx, config):
         client_public_with_id = 'keystone.public' + '.' + client_id
 
         public_host, public_port = ctx.keystone.public_endpoints[client]
-        run_cmd = get_keystone_venved_cmd(ctx, 'keystone-wsgi-public',
-            [   '--host', public_host, '--port', str(public_port),
+        run_cmd = get_keystone_venved_cmd(ctx, 'uwsgi',
+            [
+                '--http-socket', f"{public_host}:{public_port}",
+                '--module', 'keystone.wsgi.api:application',
                 # Let's put the Keystone in background, wait for EOF
                 # and after receiving it, send SIGTERM to the daemon.
                 # This crazy hack is because Keystone, in contrast to
