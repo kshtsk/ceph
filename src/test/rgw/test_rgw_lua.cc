@@ -1622,7 +1622,7 @@ TEST(TestRGWLua, ReturnError)
   )";
   int return_code = 0;
   DEFINE_REQ_STATE;
-  const auto rc = lua::request::execute(nullptr, nullptr, &s, nullptr, script, return_code);
+  const auto rc = lua::request::execute(nullptr, nullptr, nullptr, &s, nullptr, script, return_code);
   EXPECT_EQ(rc, 0);
   EXPECT_EQ(return_code, -EPERM);
 }
@@ -1635,7 +1635,7 @@ TEST(TestRGWLua, ReturnString)
 
   int return_code = 0;
   DEFINE_REQ_STATE;
-  const auto rc = lua::request::execute(nullptr, nullptr, &s, nullptr, script, return_code);
+  const auto rc = lua::request::execute(nullptr, nullptr, nullptr, &s, nullptr, script, return_code);
   ASSERT_EQ(rc, 0);
   EXPECT_NE(return_code, -EPERM);
 }
@@ -1648,7 +1648,7 @@ TEST(TestRGWLua, SuccessNoReturn)
 
   int return_code = 0;
   DEFINE_REQ_STATE;
-  const auto rc = lua::request::execute(nullptr, nullptr, &s, nullptr, script, return_code);
+  const auto rc = lua::request::execute(nullptr, nullptr, nullptr, &s, nullptr, script, return_code);
   ASSERT_EQ(rc, 0);
   EXPECT_NE(return_code, -EPERM);
 }
@@ -1661,7 +1661,7 @@ TEST(TestRGWLua, NotValidLua)
 
   int return_code = 0;
   DEFINE_REQ_STATE;
-  const auto rc = lua::request::execute(nullptr, nullptr, &s, nullptr, script, return_code);
+  const auto rc = lua::request::execute(nullptr,nullptr, nullptr, &s, nullptr, script, return_code);
   ASSERT_EQ(rc, -1);
   EXPECT_NE(return_code, -EPERM);
 }
@@ -1687,7 +1687,7 @@ TEST(TestRGWLua, BucketTags)
   s.bucket_attrs[RGW_ATTR_TAGS] = bl;
   s.bucket.reset(new sal::RadosBucket(nullptr, info));
 
-  const auto rc = lua::request::execute(nullptr, nullptr, &s, nullptr, script);
+  const auto rc = lua::request::execute(nullptr, nullptr, nullptr, &s, nullptr, script);
   ASSERT_EQ(rc, 0);
 }
 
@@ -1735,6 +1735,6 @@ TEST(TestRGWLua, BucketTagsIteration)
   s.bucket_attrs[RGW_ATTR_TAGS] = bl;
   s.bucket.reset(new sal::RadosBucket(nullptr, info));
 
-  const auto rc = lua::request::execute(nullptr, nullptr, &s, nullptr, script);
+  const auto rc = lua::request::execute(nullptr, nullptr, nullptr, &s, nullptr, script);
   ASSERT_EQ(rc, 0);
 }
