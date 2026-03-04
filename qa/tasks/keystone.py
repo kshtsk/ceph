@@ -383,6 +383,8 @@ def fill_keystone(ctx, config):
                              ['keystone-manage', '--config-file', conf_file, 'bootstrap'] +
                              list(bootstrap_args))
 
+        auth_args = os_auth_args(public_host, public_port)
+        run_in_keystone_venv(ctx, cclient, ['openstack'] + auth_args + ['role', 'list', '--debug'])
         # configure tenants/projects
         run_section_cmds(ctx, cclient, 'domain create --or-show', 'name',
                          cconfig.get('domains', []))
@@ -392,6 +394,7 @@ def fill_keystone(ctx, config):
                          cconfig.get('users', []))
         run_section_cmds(ctx, cclient, 'ec2 credentials create', '',
                          cconfig.get('ec2 credentials', []))
+        run_in_keystone_venv(ctx, cclient, ['openstack'] + auth_args + ['role', 'list', '--debug'])
         run_section_cmds(ctx, cclient, 'role create --or-show', 'name',
                          cconfig.get('roles', []))
         run_section_cmds(ctx, cclient, 'role add', 'name',
