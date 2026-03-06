@@ -15,8 +15,6 @@ overrides:
     log-only-match:
       - CEPHADM_
 tasks:
-  # TODO: (jjm) I don't think `install` is necessary for this file. Remove?
-  - install:
   - cephadm.configure_samba_client_container:
       role: host.b
   - cephadm:
