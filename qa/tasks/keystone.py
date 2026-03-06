@@ -283,8 +283,9 @@ def run_keystone(ctx, config):
                 '--master',
                 '--enable-threads',
                 '--processes', '4',
-                #'--post-buffering', '1',
+                '--post-buffering', '1',
                 '--buffer-size', '65535',
+                '--listen', '1024',
                 # Let's put the Keystone in background, wait for EOF
                 # and after receiving it, send SIGTERM to the daemon.
                 # This crazy hack is because Keystone, in contrast to
