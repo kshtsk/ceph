@@ -280,8 +280,11 @@ def run_keystone(ctx, config):
             [
                 '--http-socket', f"{public_host}:{public_port}",
                 '--module', 'keystone.wsgi.api:application',
-                '--processes', '4', '--enable-threads',
-                '--post-buffering', '1',
+                '--master',
+                '--enable-threads',
+                '--processes', '4',
+                #'--post-buffering', '1',
+                '--buffer-size', '65535',
                 # Let's put the Keystone in background, wait for EOF
                 # and after receiving it, send SIGTERM to the daemon.
                 # This crazy hack is because Keystone, in contrast to
