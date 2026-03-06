@@ -936,6 +936,11 @@ void rgw::auth::RemoteApplier::write_ops_log_entry(rgw_log_entry& entry) const
   if (account) {
     entry.account_id = account->id;
   }
+  entry.user = info.keystone_user;
+
+  if (info.keystone_scope.has_value()) {
+    entry.keystone_scope = info.keystone_scope;
+  }
 }
 
 /* TODO(rzarzynski): we need to handle display_name changes. */
@@ -1009,6 +1014,13 @@ void rgw::auth::RemoteApplier::modify_request_state(const DoutPrefixProvider* dp
   // copy our identity policies into req_state
   s->iam_identity_policies.insert(s->iam_identity_policies.end(),
                                   policies.begin(), policies.end());
+
+  if (cct->_conf->rgw_keystone_inject_roles) {
+    for (const auto& role : this->info.keystone_roles) {
+      s->env.emplace("keystone:role", role);
+    }
+  }
+
 }
 
 /* rgw::auth::LocalApplier */
