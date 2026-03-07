@@ -22,7 +22,6 @@ roles:
   - osd.2
   - mon.c
 tasks:
-- install:
 - cephadm:
 - cephadm.apply:
     specs:

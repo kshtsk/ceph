@@ -26,7 +26,6 @@ roles:
   - osd.4
   - osd.5
 tasks:
-- install:
 - cephadm:
 - cephadm.shell:
     host.a:

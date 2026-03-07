@@ -21,7 +21,6 @@ roles:
   - mon.c
   - osd.2
 tasks:
-- install:
 - cephadm:
 - cephadm.shell:
     host.a:

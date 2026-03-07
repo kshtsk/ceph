@@ -13,7 +13,6 @@ overrides:
     log-ignorelist:
       - CEPHADM_FAILED_DAEMON
 tasks:
-- install:
 - cephadm:
 - cephadm.shell:
     host.a:
