@@ -5,6 +5,7 @@ tasks:
     mon.a:
       - yum install -y python3 || apt install -y python3
 - workunit:
+    no_coverage_and_limits: true
     clients:
       client.0:
         - cephadm/test_cephadm.sh

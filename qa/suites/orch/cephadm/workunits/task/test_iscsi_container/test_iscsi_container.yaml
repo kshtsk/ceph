@@ -20,6 +20,7 @@ tasks:
       - rbd pool init foo
       - ceph orch apply iscsi foo u p
 - workunit:
+    no_coverage_and_limits: true
     clients:
       client.0:
         - cephadm/test_iscsi_pids_limit.sh
