@@ -121,7 +121,7 @@ struct ScopeInfo {
     static constexpr uint8_t kEncV = 1;
     std::string id;
     std::string name;
-    bool restricted;
+    bool restricted = false;
 
     void encode(bufferlist &bl) const {
       ENCODE_START(kEncV, kEncV, bl);
