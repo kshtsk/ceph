@@ -28,10 +28,20 @@ def task(ctx, config):
 
     log.info('Deploying tox from pip...')
     for (client, _) in config.items():
+        # Preinstall custom python version via uv
+        python_ver = '3.11'
+        ctx.cluster.only(client).run(args=
+            'curl -LsSf https://astral.sh/uv/install.sh | sh')
+        ctx.cluster.only(client).run(args=(
+            "source $HOME/.local/bin/env && "
+            f"uv python install {python_ver}"))
+
         # yup, we have to deploy tox first. The packaged one, available
         # on Sepia's Ubuntu machines, is outdated for Keystone/Tempest.
         tvdir = get_toxvenv_dir(ctx)
-        ctx.cluster.only(client).run(args=['python3', '-m', 'venv', tvdir])
+        ctx.cluster.only(client).run(args=(
+            "source $HOME/.local/bin/env && "
+            f"uv run --python {python_ver} -m venv {tvdir}"))
         ctx.cluster.only(client).run(args=[
             'source', '{tvdir}/bin/activate'.format(tvdir=tvdir),
             run.Raw('&&'),
