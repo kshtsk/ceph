@@ -1,4 +1,10 @@
 # Common subroutines shared by the s3 testing code
+#
+# Ignore SIGPIPE so that writes to closed sockets (e.g. when the server
+# rejects a PUT early due to quota) return EPIPE instead of killing the
+# process.  LWP / Amazon::S3 will surface the error normally.
+$SIG{PIPE} = 'IGNORE';
+
 my $sec;
 my $min;
 my $hour;
