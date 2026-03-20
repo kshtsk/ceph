@@ -269,6 +269,8 @@ def create_secrets(ctx, config):
     """
     assert isinstance(config, dict)
     (cclient, cconfig) = next(iter(config.items()))
+    (remote,) = ctx.cluster.only(cclient).remotes.keys()
+    remote.sh('ss -lnt | grep ":5000"')
 
     rgw_user = cconfig['rgw_user']
 
