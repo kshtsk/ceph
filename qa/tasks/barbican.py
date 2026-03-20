@@ -19,6 +19,17 @@ from teuthology.exceptions import ConfigError
 log = logging.getLogger(__name__)
 
 
+def log_wait(sec, message = None):
+    if sec == 1:
+        seconds = "a second"
+    else:
+        seconds = f"{sec} seconds"
+    if message:
+        log.info(f"Waiting for {seconds} {message}...")
+    else:
+        log.info(f"Waiting for {seconds}...")
+    time.sleep(sec)
+
 @contextlib.contextmanager
 def download(ctx, config):
     """
@@ -242,8 +253,7 @@ def run_barbican(ctx, config):
             check_status=False,
         )
 
-        # sleep driven synchronization
-        run_in_barbican_venv(ctx, client, ['sleep', '15'])
+    log_wait(15, "while barbican starts")
     try:
         yield
     finally:
@@ -410,7 +420,7 @@ def create_secrets(ctx, config):
             key = {'id': secret_ref.split('secrets/')[1], 'payload': secret['base64']}
             ctx.barbican.keys[secret['name']] = key
 
-    run_in_barbican_venv(ctx, cclient, ['sleep', '3'])
+    log_wait(3)
     try:
         yield
     finally:
