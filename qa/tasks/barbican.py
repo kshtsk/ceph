@@ -182,15 +182,15 @@ def create_barbican_conf(ctx, cclient):
                                                  port=barbican_port)
     log.info("barbican url=%s", barbican_url)
 
-    run_in_barbican_dir(ctx, cclient,
-                        ['bash', '-c',
-                         'echo -n -e "[DEFAULT]\nhost_href = ' + barbican_url + \
-                         '\n[simple_crypto_plugin]\n' + \
-                         'kek =  UGxlYXNlIG1ha2UgYmFyYmljYW4gZ3JlYXQgYWdhaW4=\n" ' + \
-                         '>barbican.conf'])
+    config_path = get_barbican_dir(ctx) + '/barbican.conf'
+    (remote,) = ctx.cluster.only(cclient).remotes.keys()
+    remote.write_file(config_path, (
+         "[DEFAULT]\n"
+         f"host_href = {barbican_url}\n"
+         "[simple_crypto_plugin]\n"
+         "kek = UGxlYXNlIG1ha2UgYmFyYmljYW4gZ3JlYXQgYWdhaW4=\n"))
 
     log.info("run barbican db upgrade")
-    config_path = get_barbican_dir(ctx) + '/barbican.conf'
     run_in_barbican_venv(ctx, cclient, ['barbican-manage', '--config-file', config_path,
                                         'db', 'upgrade'])
     log.info("run barbican db sync_secret_stores")
