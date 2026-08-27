@@ -196,7 +196,7 @@ def setup_venv(ctx, config):
 
         run_in_keystone_venv(ctx, client,
             [   'pip', 'install',
-                'python-openstackclient', 'uwsgi',
+                'python-openstackclient', 'gunicorn',
             ])
     try:
         yield
@@ -276,11 +276,13 @@ def run_keystone(ctx, config):
         client_public_with_id = 'keystone.public' + '.' + client_id
 
         public_host, public_port = ctx.keystone.public_endpoints[client]
-        run_cmd = get_keystone_venved_cmd(ctx, 'uwsgi',
+        run_cmd = get_keystone_venved_cmd(ctx, 'gunicorn',
             [
-                '--master', # needs to address RemoteDisconnected
-                '--http', f"{public_host}:{public_port}",
-                '--module', 'keystone.wsgi.api:application',
+                '--bind', f"{public_host}:{public_port}",
+                '--workers', '1',
+                '--threads', '4',
+                '--timeout', '120',
+                'keystone.wsgi.api:application',
                 # Let's put the Keystone in background, wait for EOF
                 # and after receiving it, send SIGTERM to the daemon.
                 # This crazy hack is because Keystone, in contrast to
