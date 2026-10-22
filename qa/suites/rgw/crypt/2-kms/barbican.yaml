@@ -28,6 +28,8 @@ tasks:
 - keystone:
     client.0:
       force-branch: stable/2025.1
+      constraints-pins:
+        oslo.config: 9.7.1
       services:
         - name: swift
           type: object-store
