@@ -48,6 +48,50 @@ def get_keystone_venved_cmd(ctx, cmd, args, env=[]):
     kbindir = get_keystone_dir(ctx) + '/.tox/venv/bin/'
     return env + [ kbindir + cmd ] + args
 
+def get_constraints_file(ctx):
+    return '{kdir}/upper-constraints.local.txt'.format(kdir=get_keystone_dir(ctx))
+
+def get_tox_env(ctx, cconfig):
+    """
+    Environment prefix for tox calls: point keystone's tox.ini at the
+    locally patched upper-constraints file if pins are configured.
+    """
+    if not (cconfig or {}).get('constraints-pins'):
+        return []
+    return [run.Raw('TOX_CONSTRAINTS_FILE={}'.format(get_constraints_file(ctx)))]
+
+def pin_constraints(ctx, client, cconfig):
+    """
+    Fetch the upper-constraints file referenced by keystone's tox.ini and
+    override selected package versions in a local copy.
+
+    This works around packages whose new releases are broken for the
+    test node's python, e.g. oslo.config 9.7.2 ships a normalized
+    'oslo_config-*.dist-info' that python 3.9's importlib.metadata
+    can't resolve as 'oslo.config', which breaks 'tox -e genconfig'.
+    """
+    pins = (cconfig or {}).get('constraints-pins')
+    if not pins:
+        return
+    cfile = get_constraints_file(ctx)
+    log.info('Pinning keystone constraints for %s: %s', client, pins)
+    # use the same URL tox.ini would use by default
+    run_in_keystone_dir(ctx, client, [
+        run.Raw('url=$(sed -n "s/.*TOX_CONSTRAINTS_FILE:\\([^}]*\\)}.*/\\1/p" tox.ini | head -1)'),
+        run.Raw('&&'), 'test', '-n', run.Raw('"$url"'),
+        run.Raw('&&'), 'curl', '-fsSL', '-o', cfile, run.Raw('"$url"'),
+    ])
+    for name, version in pins.items():
+        run_in_keystone_dir(ctx, client, [
+            'sed', '-i', '/^{}===/d'.format(name.replace('.', '\\.')), cfile,
+            run.Raw('&&'),
+            'echo', '{}==={}'.format(name, version), run.Raw('>>'), cfile,
+        ])
+    run_in_keystone_dir(ctx, client, [
+        'cp', cfile, '{}/archive/keystone.{}.upper-constraints.txt'.format(
+            teuthology.get_testdir(ctx), client),
+    ])
+
 @contextlib.contextmanager
 def download(ctx, config):
     """
@@ -183,14 +227,17 @@ def setup_venv(ctx, config):
     """
     assert isinstance(config, dict)
     log.info('Setting up virtualenv for keystone...')
-    for (client, _) in config.items():
+    for (client, cconfig) in config.items():
         run_in_keystone_dir(ctx, client,
             ['sed', '-i', 's/usedevelop.*/usedevelop=false/g', 'tox.ini'])
+
+        pin_constraints(ctx, client, cconfig)
 
         run_in_keystone_dir(ctx, client,
             [   'source',
                 '{tvdir}/bin/activate'.format(tvdir=get_toxvenv_dir(ctx)),
                 run.Raw('&&'),
+            ] + get_tox_env(ctx, cconfig) + [
                 'tox', '-e', 'venv', '--notest'
             ])
 
@@ -210,13 +257,14 @@ def configure_instance(ctx, config):
 
     kdir = get_keystone_dir(ctx)
     keyrepo_dir = '{kdir}/etc/fernet-keys'.format(kdir=kdir)
-    for (client, _) in config.items():
+    for (client, cconfig) in config.items():
         # prepare the config file
         run_in_keystone_dir(ctx, client,
             [
                 'source',
                 f'{get_toxvenv_dir(ctx)}/bin/activate',
                 run.Raw('&&'),
+            ] + get_tox_env(ctx, cconfig) + [
                 'tox', '-e', 'genconfig'
             ])
         run_in_keystone_dir(ctx, client,
@@ -459,6 +507,8 @@ def task(ctx, config):
       - keystone:
           client.0:
             force-branch: master
+            constraints-pins:
+              oslo.config: 9.7.1
             domains:
               - name: custom
                 description: Custom domain
