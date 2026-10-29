@@ -262,8 +262,14 @@ def configure_instance(ctx, config):
     yield
 
 UWSGI_MODE_OPTS = {
-    'router': ['--master', '--processes', '4', '--http-keepalive', '--http'],
-    'socket': ['--http-socket'],
+    'router': [
+        '--master', '--processes', '4', '--http-keepalive',
+        '--http',
+    ],
+    'socket': [
+        '--add-header', 'Connection: close',
+        '--http-socket',
+    ],
 }
 
 @contextlib.contextmanager
