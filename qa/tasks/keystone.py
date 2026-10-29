@@ -261,6 +261,11 @@ def configure_instance(ctx, config):
         run_in_keystone_venv(ctx, client, [ 'keystone-manage', '--config-file', conf_file, 'db_sync' ])
     yield
 
+UWSGI_MODE_OPTS = {
+    'router': ['--master', '--processes', '4', '--http-keepalive', '--http'],
+    'socket': ['--http-socket'],
+}
+
 @contextlib.contextmanager
 def run_keystone(ctx, config):
     assert isinstance(config, dict)
@@ -268,7 +273,7 @@ def run_keystone(ctx, config):
 
     conf_file = '{kdir}/etc/keystone.conf'.format(kdir=get_keystone_dir(ctx))
 
-    for (client, _) in config.items():
+    for (client, cconfig) in config.items():
         (remote,) = ctx.cluster.only(client).remotes.keys()
         cluster_name, _, client_id = teuthology.split_role(client)
 
@@ -276,12 +281,17 @@ def run_keystone(ctx, config):
         client_public_with_id = 'keystone.public' + '.' + client_id
 
         public_host, public_port = ctx.keystone.public_endpoints[client]
+
+        uwsgi_mode = (cconfig or {}).get('uwsgi-mode', 'router')
+        if uwsgi_mode not in UWSGI_MODE_OPTS:
+            available_modes = ", ".join(UWSGI_MODE_OPTS)
+            raise ConfigError(f'unknown uwsgi-mode {uwsgi_mode!r} for keystone, '
+                              f'supported modes: {available_modes}')
+        log.info(f'Using uwsgi-mode={uwsgi_mode} for keystone on client {client}')
+
         run_cmd = get_keystone_venved_cmd(ctx, 'uwsgi',
-            [
-                '--master', # needs to address RemoteDisconnected
-                '--processes', '4',
-                '--http-keepalive',
-                '--http', f"{public_host}:{public_port}",
+            UWSGI_MODE_OPTS[uwsgi_mode] + [
+                f"{public_host}:{public_port}",
                 '--module', 'keystone.wsgi.api:application',
                 # Let's put the Keystone in background, wait for EOF
                 # and after receiving it, send SIGTERM to the daemon.
@@ -461,6 +471,7 @@ def task(ctx, config):
       - tox: [ client.0 ]
       - keystone:
           client.0:
+            uwsgi-mode: router
             force-branch: master
             domains:
               - name: custom
