@@ -3,6 +3,9 @@ overrides:
     client.0:
       # tempest tests expect the swift api at the root
       frontend_prefix: /swift
+  keystone:
+    client.0:
+      uwsgi-mode: socket
 
 tasks:
 - tempest:
